@@ -17,7 +17,7 @@ class Scraper(object):
         if feed_url:
             self.feed_url = feed_url
         self.connection = connection
-        self.db = connection[base64.b16encode(feed_url)]
+        self.db = connection[base64.b16encode(self.feed_url)]
 
     def scrape(self):
         items = self.db.items
