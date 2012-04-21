@@ -1,0 +1,6 @@
+Dependencies:
+ * PHP 5
+ * PHP mongo module
+ * Python pymongo module
+ * Python dateutil module
+
