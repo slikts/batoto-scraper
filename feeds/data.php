@@ -2,12 +2,13 @@
 
 class Data {
     const MIN_ID_LENGTH = 32;
+    const ID_REGEX = '/^[\w\d_]{32}$/i';
     public $db = NULL;
     public $collection_name = NULL;
     public $collection = NULL;
 
     static function validate_profile_id($id) {
-        return strlen($id) == self::MIN_ID_LENGTH;
+        return strlen($id) == self::MIN_ID_LENGTH && preg_match(self::ID_REGEX, $id);
     }
 
     function __construct($db, $collection_name) {
@@ -16,8 +17,18 @@ class Data {
         $this->collection = $this->db->{$collection_name};
     }
 
-    function get_items() {
-        return $this->collection->items->find();
+    function get_items($profile, $limit=10) {
+        $filter = array();
+        $languages_filter = $profile['languages'];
+        if ($languages_filter) {
+            $filter['language'] = array('$in' => $profile['languages']);
+        }
+        $series_filter = $profile['series'];
+        if ($series_filter) {
+            $filter['series'] = array('$in' => $profile['series']);
+        }
+        
+        return $this->collection->items->find($filter)->limit($limit);
     }
 
     function generate_profile_id() {
@@ -30,8 +41,17 @@ class Data {
     }
 
     function get_series() {
-        $series = $this->db->command(array('distinct' => $this->collection_name . '.items', 'key' => 'series'));
-        return $series['values'];
+        $result = $this->db->command(array('distinct' => $this->collection_name . '.items', 'key' => 'series'));
+        $series = $result['values'];
+        sort($series);
+        return $series;
+    }
+    
+    function get_languages() {
+        $result = $this->db->command(array('distinct' => $this->collection_name . '.items', 'key' => 'language'));
+        $languages = $result['values'];
+        sort($languages);
+        return $languages;
     }
 
     function get_profile($id) {
@@ -40,7 +60,7 @@ class Data {
 
     function get_subscriptions($profile_id) {
         $profile = $this->get_profile($profile_id);
-        return isset($profile['subscriptions']) ? $profile['subscriptions'] : array();
+        return $profile;
     }
 
     function create_profile($id) {
@@ -58,8 +78,11 @@ class Data {
         if (!$profile) {
             list($profile, $profile_id) = $this->create_profile($profile_id);
         }
-        $profile['subscriptions'] = $data;
+        $profile['series'] = $data['series'];
+        $profile['languages'] = $data['languages'];
+        $profile['title'] = filter_var($data['title'], FILTER_SANITIZE_STRING);
         $this->collection->profiles->update(array('_id' => $profile_id), $profile);
+        message("Subscriptions saved to profile &lt;$profile_id>");
         return $profile_id;
     }
 }
