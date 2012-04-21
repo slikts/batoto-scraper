@@ -22,7 +22,7 @@ class Scraper(object):
     def scrape(self):
         items = self.db.items
         root = ElementTree.fromstring(urllib2.urlopen(self.feed_url).read())
-        for raw_item in root.iter('item'):
+        for raw_item in root.findall('item'):
             items.insert(self.read_item(raw_item))
 
     def read_item(self, raw_item):
