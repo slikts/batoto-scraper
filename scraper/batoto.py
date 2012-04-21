@@ -5,12 +5,12 @@ import scraper
 
 class BatotoScraper(scraper.Scraper):
     feed_url = 'http://www.batoto.net/recent_rss'
-    title_re = re.compile(r'(?P<series>.+?) - (\w+) - '
+    title_re = re.compile(r'(?P<series>.+?) - (?P<language>\w+) - '
     r'(:?Vol.(?P<volume>\d+) )?Ch.(?P<chapter>\w+?):?(?P<chapter_title>.+)')
-    result_groups = ('volume', 'series', 'chapter', 'chapter_title')
+    result_groups = ('volume', 'series', 'chapter', 'chapter_title', 'language')
 
-    def parse_item(self, raw_item):
-        item = super(BatotoScraper, self).parse_item(raw_item)
+    def read_item(self, raw_item):
+        item = super(BatotoScraper, self).read_item(raw_item)
         results = self.title_re.match(item['title'])
         for group in self.result_groups:
             item[group] = results.group(group)

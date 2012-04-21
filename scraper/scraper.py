@@ -1,5 +1,4 @@
 import urllib2
-import base64
 from sys import argv
 
 import pymongo
@@ -11,21 +10,22 @@ class Scraper(object):
     feed_url = None
     connection = None
     db = None
+    db_name = 'scraper'
     encoding = 'utf-8'
 
     def __init__(self, feed_url, connection):
         if feed_url:
             self.feed_url = feed_url
         self.connection = connection
-        self.db = connection[base64.b16encode(self.feed_url)]
+        self.db = connection[self.db_name][self.feed_url]
 
     def scrape(self):
         items = self.db.items
         root = ElementTree.fromstring(urllib2.urlopen(self.feed_url).read())
         for raw_item in root.iter('item'):
-            items.insert(self.parse_item(raw_item))
+            items.insert(self.read_item(raw_item))
 
-    def parse_item(self, raw_item):
+    def read_item(self, raw_item):
         item = dict(
             _id=raw_item.find('guid').text,
             title=raw_item.find('title').text.encode(self.encoding),
