@@ -4,17 +4,19 @@ $root = __DIR__ . '/../';
 
 require $root . 'data.php';
 
-// "http://www.batoto.net/recent_rss" encoded as base16
-$db_name = '687474703A2F2F6C6F63616C686F73742F726563656E745F727373';
+$db_name = 'scraper';
+$collection_name = 'http://www.batoto.net/recent_rss';
 $base_path = '/';
+$item_limit = 50;
 
 // Config overrides
 @include $root . 'config.php';
 
 $mongo = new Mongo();
 $db = $mongo->selectDB($db_name);
+$collection = $db->{$collection_name};
 
-$data = new Data($db);
+$data = new Data($db, $collection_name);
 
 $request_uri = $_SERVER['REQUEST_URI'];
 $request_path = $request_uri;

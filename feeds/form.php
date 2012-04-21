@@ -2,6 +2,9 @@
 $subscriptions = $data->get_subscriptions($profile_id);
 if ($profile_id) {
     $feed_link = $base_path . 'feed/' . $profile_id;
+    $subscribe_label = 'Update subscriptions';
+} else {
+    $subscribe_label = 'Subscribe';
 }
 ?>
 <!doctype HTML>
@@ -32,7 +35,8 @@ if ($profile_id) {
             <?php endif; ?>
         </p>
         <p>
-            <input id="save" type="submit" value="Subscribe">
+            <input id="save" type="submit" value="<?php echo $subscribe_label; ?>">
+            <a href="<?php echo $base_path; ?>">New profile</a>
         </p>
     </form>
 </body>

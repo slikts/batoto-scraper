@@ -3,17 +3,21 @@
 class Data {
     const MIN_ID_LENGTH = 32;
     public $db = NULL;
+    public $collection_name = NULL;
+    public $collection = NULL;
 
     static function validate_profile_id($id) {
         return strlen($id) == self::MIN_ID_LENGTH;
     }
 
-    function __construct($db) {
+    function __construct($db, $collection_name) {
         $this->db = $db;
+        $this->collection_name = $collection_name;
+        $this->collection = $this->db->{$collection_name};
     }
 
     function get_items() {
-        return $this->db->items->find();
+        return $this->collection->items->find();
     }
 
     function generate_profile_id() {
@@ -26,12 +30,12 @@ class Data {
     }
 
     function get_series() {
-        $series = $this->db->command(array('distinct' => 'items', 'key' => 'series'));
+        $series = $this->db->command(array('distinct' => $this->collection_name . '.items', 'key' => 'series'));
         return $series['values'];
     }
 
     function get_profile($id) {
-        return $this->db->profiles->findOne(array('_id' => $id));
+        return $this->collection->profiles->findOne(array('_id' => $id));
     }
 
     function get_subscriptions($profile_id) {
@@ -43,7 +47,7 @@ class Data {
         if (!self::validate_profile_id($id)) {
             $id = $this->generate_profile_id();
         }
-        $profile = $this->db->profiles->insert(array(
+        $this->collection->profiles->insert(array(
             '_id' => $id,
         ));
         return array($this->get_profile($id), $id);
@@ -55,7 +59,7 @@ class Data {
             list($profile, $profile_id) = $this->create_profile($profile_id);
         }
         $profile['subscriptions'] = $data;
-        $this->db->profiles->update(array('_id' => $profile_id), $profile);
+        $this->collection->profiles->update(array('_id' => $profile_id), $profile);
         return $profile_id;
     }
 }
