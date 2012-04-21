@@ -1,28 +1,35 @@
 import urllib2
 from sys import argv
+from xml.etree import ElementTree
 
 import pymongo
 from dateutil.parser import parse as parse_date
-from xml.etree import ElementTree
+
+import config
 
 
 class Scraper(object):
     feed_url = None
     connection = None
     db = None
+    log = None
     db_name = 'scraper'
     encoding = 'utf-8'
 
-    def __init__(self, feed_url, connection):
+    def __init__(self, feed_url, connection, log):
         if feed_url:
             self.feed_url = feed_url
         self.connection = connection
+        self.log = log.name('scraper')
         self.db = connection[self.db_name][self.feed_url]
 
     def scrape(self):
         items = self.db.items
+        self.log.fields(url=self.feed_url).debug('loading feed')
         root = ElementTree.fromstring(urllib2.urlopen(self.feed_url).read())
-        for raw_item in root.findall('item'):
+        all_items = root.find('channel').findall('item')
+        self.log.fields(len=str(len(all_items))).debug('items found')
+        for raw_item in all_items:
             items.insert(self.read_item(raw_item))
 
     def read_item(self, raw_item):
@@ -38,7 +45,7 @@ class Scraper(object):
 def main(feed_url, scraper_class=Scraper, connection=None):
     if not connection:
         connection = pymongo.Connection()
-    scraper = scraper_class(feed_url, connection)
+    scraper = scraper_class(feed_url, connection, config.log)
     scraper.scrape()
 
 

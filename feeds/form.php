@@ -100,8 +100,8 @@ $history = $_SESSION['history'];
             </form>
             <h2>Info</h2>
             <div class="tips">
-                <p>Tip: Hold the <kbd>Ctrl</kbd>key while clicking to select or unselect multiple items in the lists.</p>
-                <p>This is a tool to filter <a href="http://batoto.net/">Batoto</a> RSS feeds by series or languages. It creates unique links for subscription profiles that can be used to follow or update the subscriptions.</a>
+                <p>Tip: Hold the <kbd>Ctrl</kbd> key while clicking to select or unselect multiple items in the lists.</p>
+                <p>This is a tool to filter <a href="http://batoto.net/">Batoto</a> RSS feeds by series and languages. It creates unique links for subscription profiles that can be used to follow or update the subscriptions.</a>
             </div>
             <?php if (!empty($history)) : ?>
                 <div class="history">
