@@ -56,7 +56,7 @@ $history = $_SESSION['history'];
                             <option value="<?php echo htmlspecialchars($series_title); ?>"<?php echo $selected; ?>>
                                 <?php echo htmlspecialchars($series_title); ?>
                             </option>
-                        <? endforeach; ?>
+                        <?php endforeach; ?>
                     </select>
                     <?php if ($profile_id) : ?>
                         <input type="hidden" name="profile_id" value="<?php echo $profile_id; ?>">
